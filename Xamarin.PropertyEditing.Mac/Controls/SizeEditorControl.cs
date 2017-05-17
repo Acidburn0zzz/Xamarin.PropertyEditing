@@ -21,18 +21,21 @@ namespace Xamarin.PropertyEditing.Mac
 
 		protected override void UpdateValue ()
 		{
-			XEditor.StringValue = ViewModel.Value.Width.ToString ();
-			YEditor.StringValue = ViewModel.Value.Height.ToString ();
+			XEditor.Value = ViewModel.Value.Width;
+			YEditor.Value = ViewModel.Value.Height;
 		}
 
 		protected override void OnInputUpdated (object sender, EventArgs e)
 		{
-			ViewModel.Value = new Size (XEditor.IntValue, YEditor.IntValue);
+			ViewModel.Value = new Size ((int)XEditor.Value, (int)YEditor.Value);
 		}
 
 		protected override void UpdateAccessibilityValues ()
 		{
+			XEditor.AccessibilityEnabled = XEditor.Enabled;
 			XEditor.AccessibilityTitle = ViewModel.Property.Name + " Width Editor"; // TODO Localization
+
+			YEditor.AccessibilityEnabled = YEditor.Enabled;
 			YEditor.AccessibilityTitle = ViewModel.Property.Name + " Height Editor"; // TODO Localization
 		}
 	}

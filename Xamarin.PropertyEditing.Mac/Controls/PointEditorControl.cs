@@ -21,13 +21,13 @@ namespace Xamarin.PropertyEditing.Mac
 
 		protected override void UpdateValue ()
 		{
-			XEditor.StringValue = ViewModel.Value.X.ToString ();
-			YEditor.StringValue = ViewModel.Value.Y.ToString ();
+			XEditor.Value = ViewModel.Value.X;
+			YEditor.Value = ViewModel.Value.Y;
 		}
 
 		protected override void OnInputUpdated (object sender, EventArgs e)
 		{
-			ViewModel.Value = new Point (XEditor.IntValue, YEditor.IntValue);
+			ViewModel.Value = new Point ((int)XEditor.Value, (int)YEditor.Value);
 		}
 
 		protected override void UpdateAccessibilityValues ()
