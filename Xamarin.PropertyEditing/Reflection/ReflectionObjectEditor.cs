@@ -17,17 +17,32 @@ namespace Xamarin.PropertyEditing.Reflection
 
 			this.target = target;
 
-			foreach (PropertyInfo property in target.GetType ().GetProperties ()) {
+			Type targetType = target.GetType ();
+			this.isWpfType = GetIsWpfType (targetType);
+
+			IReadOnlyDictionary<string, object> dependencyProperties = (this.isWpfType) ? GetDependencyProperties (target) : null;
+
+			foreach (PropertyInfo property in targetType.GetProperties ()) {
 				DebuggerBrowsableAttribute browsable = property.GetCustomAttribute<DebuggerBrowsableAttribute> ();
 				if (browsable != null && browsable.State == DebuggerBrowsableState.Never) {
 					continue;
 				}
 
 				if (CheckAvailability (property)) {
-					if (property.PropertyType.IsEnum) {
-						this.properties.Add ((ReflectionPropertyInfo)Activator.CreateInstance (typeof(ReflectionEnumPropertyInfo<>).MakeGenericType (Enum.GetUnderlyingType (property.PropertyType)), property));
+					ReflectionPropertyInfo propInfo;
+
+					object dp;
+					if (dependencyProperties != null && dependencyProperties.TryGetValue (property.Name, out dp)) {
+						if (property.PropertyType.IsEnum)
+							propInfo = (ReflectionPropertyInfo)Activator.CreateInstance (typeof (EnumDependencyPropertyInfo<>).MakeGenericType (Enum.GetUnderlyingType (property.PropertyType)), property, dp);
+						else
+							propInfo = new DependencyPropertyInfo (property, dp);
+					} else if (property.PropertyType.IsEnum) {
+						propInfo = (ReflectionPropertyInfo)Activator.CreateInstance (typeof (ReflectionEnumPropertyInfo<>).MakeGenericType (Enum.GetUnderlyingType (property.PropertyType)), property);
 					} else
-						this.properties.Add (new ReflectionPropertyInfo (property));
+						propInfo = new ReflectionPropertyInfo (property);
+
+					this.properties.Add (propInfo);
 				}
 			}
 		}
@@ -51,11 +66,11 @@ namespace Xamarin.PropertyEditing.Reflection
 			if (info == null)
 				throw new ArgumentException();
 
-			await info.SetValueAsync (this.target, value.Value);
+			await info.SetValueAsync (this.target, value);
 			OnPropertyChanged (info);
 		}
 
-		public async Task<ValueInfo<T>> GetValueAsync<T> (IPropertyInfo property, PropertyVariation variation = null)
+		public Task<ValueInfo<T>> GetValueAsync<T> (IPropertyInfo property, PropertyVariation variation = null)
 		{
 			if (property == null)
 				throw new ArgumentNullException (nameof (property));
@@ -64,23 +79,59 @@ namespace Xamarin.PropertyEditing.Reflection
 			if (info == null)
 				throw new ArgumentException();
 
-			T value = await info.GetValueAsync<T> (this.target);
-
-			return new ValueInfo<T> {
-				Source = ValueSource.Local,
-				Value = value
-			};
+			return info.GetValueAsync<T> (this.target);
 		}
 
 		private readonly object target;
+		private readonly bool isWpfType;
 		private readonly List<ReflectionPropertyInfo> properties = new List<ReflectionPropertyInfo> ();
 
-		private static readonly IObjectEditor[] EmptyDirectChildren = new IObjectEditor[0];
 		private static Version OSVersion;
+
+		private static readonly IObjectEditor[] EmptyDirectChildren = new IObjectEditor[0];
+
+		private static Type DependencyObjectType;
+		private static MethodInfo GetDependencyPropertyName;
 
 		protected virtual void OnPropertyChanged (IPropertyInfo property)
 		{
 			PropertyChanged?.Invoke (this, new EditorPropertyChangedEventArgs (property));
+		}
+
+		private static bool GetIsWpfType (Type type)
+		{
+			Type baseType = type;
+			while (baseType != null) {
+				if (baseType.Name == "DependencyObject") {
+					DependencyObjectType = baseType;
+					return true;
+				}
+
+				baseType = baseType.BaseType;
+			}
+
+			return false;
+		}
+
+		private static IReadOnlyDictionary<string, object> GetDependencyProperties (object target)
+		{
+			Dictionary<string, object> properties = new Dictionary<string, object> ();
+
+			Type type = target.GetType ();
+			foreach (FieldInfo field in type.GetFields (BindingFlags.FlattenHierarchy | BindingFlags.Static | BindingFlags.Public)) {
+				if (field.FieldType.Name != "DependencyProperty")
+					continue;
+
+				if (GetDependencyPropertyName == null) {
+					GetDependencyPropertyName = field.FieldType.GetProperty ("Name").GetMethod;
+				}
+
+				object dproperty = field.GetValue (target);
+				string name = (string)GetDependencyPropertyName.Invoke (dproperty, null);
+				properties.Add (name, dproperty);
+			}
+
+			return properties;
 		}
 
 		private static bool CheckAvailability (PropertyInfo property)

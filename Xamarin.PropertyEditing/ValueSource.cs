@@ -12,6 +12,8 @@ namespace Xamarin.PropertyEditing
 		Binding = 2,
 		Resource = 3,
 		Style = 4,
+		DefaultStyle = 5,
+		Inherited = 6,
 	}
 
 	[Flags]
@@ -29,6 +31,10 @@ namespace Xamarin.PropertyEditing
 		Local = 2,
 		Binding = 4,
 		Resource = 8,
-		Style = 16
+		Style = 16,
+		DefaultStyle = 32,
+		Inherited = 64,
+
+		All = Default | Local | Binding | Resource | Style | DefaultStyle | Inherited
 	}
 }

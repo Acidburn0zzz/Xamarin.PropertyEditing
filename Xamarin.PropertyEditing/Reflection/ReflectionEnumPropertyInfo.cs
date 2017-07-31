@@ -44,8 +44,10 @@ namespace Xamarin.PropertyEditing.Reflection
 			get;
 		}
 
-		public override async Task SetValueAsync<TValue> (object target, TValue value)
+		public override async Task SetValueAsync<TValue> (object target, ValueInfo<TValue> info)
 		{
+			TValue value = info.Value;
+
 			IReadOnlyList<T> values = value as IReadOnlyList<T>;
 			if (values != null) {
 				if (!IsValueCombinable)
@@ -58,17 +60,30 @@ namespace Xamarin.PropertyEditing.Reflection
 					realValue = or (realValue, values[i]);
 				}
 
-				PropertyInfo.SetValue (target, realValue);
+				SetValueCore (target, new ValueInfo<object> {
+					Source = ValueSource.Local,
+					Value = realValue
+				});
 			} else {
 				object convertedValue = Enum.ToObject (PropertyInfo.PropertyType, value);
-				PropertyInfo.SetValue (target, convertedValue);
+
+				SetValueCore (target, new ValueInfo<object> {
+					Source = ValueSource.Local,
+					Value = convertedValue
+				});
 			}
 		}
 
-		public override async Task<TValue> GetValueAsync<TValue> (object target)
+		public override async Task<ValueInfo<TValue>> GetValueAsync<TValue> (object target)
 		{
-			if (typeof(TValue) == typeof(IReadOnlyList<T>)) {
-				T realValue = (T)PropertyInfo.GetValue (target);
+			ValueInfo<object> info = GetValueCore (target);
+			ValueInfo<TValue> finalInfo = new ValueInfo<TValue> {
+				ValueDescriptor = info.ValueDescriptor,
+				Source = info.Source
+			};
+
+			if (typeof (TValue) == typeof (IReadOnlyList<T>)) {
+				T realValue = (T)info.Value;
 
 				Func<T, T, bool> hasFlag = DynamicBuilder.GetHasFlagMethod<T> ();
 
@@ -79,10 +94,11 @@ namespace Xamarin.PropertyEditing.Reflection
 				}
 
 				Func<object, TValue> caster = DynamicBuilder.GetCaster<TValue> ();
-				return caster (values);
-			}
+				finalInfo.Value = caster (values);
+			} else
+				finalInfo.Value = (TValue)info.Value;
 
-			return (TValue) PropertyInfo.GetValue (target);
+			return finalInfo;
 		}
 	}
 
