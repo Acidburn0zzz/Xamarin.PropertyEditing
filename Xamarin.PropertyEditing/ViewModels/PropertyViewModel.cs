@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Xamarin.PropertyEditing.Reflection;
 
 namespace Xamarin.PropertyEditing.ViewModels
 {
@@ -157,11 +158,37 @@ namespace Xamarin.PropertyEditing.ViewModels
 			return true;
 		}
 
-		private async void SetValue (ValueInfo<TValue> newValue)
+		public async Task<IReadOnlyList<TValue>> GetValues ()
+		{
+			using (await AsyncWork.RequestAsyncWork (this)) {
+				var values = await Task.WhenAll (Editors.Select (ed => ed.GetValueAsync<IReadOnlyList<TValue>> (Property, Variation)));
+				if (values != null) {
+					// If multiple objects selected, we don't want to do anything for now.
+					if (values.Count () > 1)
+						return null;
+					else {
+						return values.First ().Value;
+					}
+				}
+				return null;
+			}
+		}
+
+		public async void SetValue (ValueInfo<TValue> newValue)
 		{
 			if (this.value == newValue)
 				return;
 
+			await SetEditorValueAsync (newValue);
+		}
+
+		public async void SetValue (ValueInfo<IReadOnlyList<TValue>> newValue)
+		{
+			await SetEditorValueAsync (newValue);
+		}
+
+		async Task SetEditorValueAsync<T> (ValueInfo<T> newValue)
+		{
 			SetError (null);
 
 			using (await AsyncWork.RequestAsyncWork (this)) {

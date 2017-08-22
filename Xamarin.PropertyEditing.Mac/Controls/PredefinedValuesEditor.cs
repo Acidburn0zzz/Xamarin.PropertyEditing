@@ -103,7 +103,7 @@ namespace Xamarin.PropertyEditing.Mac
 					foreach (var item in EditorViewModel.PossibleValues) {
 						var BooleanEditor = new NSButton (new CGRect (0, top, 200, 24)) { TranslatesAutoresizingMaskIntoConstraints = false };
 						BooleanEditor.SetButtonType (NSButtonType.Switch);
-						BooleanEditor.Title = item.Key;
+						BooleanEditor.Title = item;
 						BooleanEditor.Activated += SelectionChanged;
 
 						AddSubview (BooleanEditor);
@@ -120,7 +120,7 @@ namespace Xamarin.PropertyEditing.Mac
 
 					// Once the VM is loaded we need a one time population
 					foreach (var item in EditorViewModel.PossibleValues) {
-						this.comboBox.Add (new NSString (item.Key));
+						this.comboBox.Add (new NSString (item));
 					}
 
 					AddSubview (this.comboBox);
@@ -143,9 +143,9 @@ namespace Xamarin.PropertyEditing.Mac
 		void SelectionChanged (object sender, EventArgs e)
 		{
 			if (EditorViewModel.IsCombinable) {
-				var tickedButtons = string.Join (",", combinableList.Where (y => y.State == NSCellStateValue.On).Select (x => x.Title));
+				var tickedButtons = combinableList.Where (y => y.State == NSCellStateValue.On).Select (x => x.Title).ToList ();
 
-				EditorViewModel.ValueName = tickedButtons;
+				EditorViewModel.ValueList = tickedButtons;
 			} else {
 				EditorViewModel.ValueName = comboBox.SelectedValue.ToString ();
 			}
@@ -157,15 +157,14 @@ namespace Xamarin.PropertyEditing.Mac
 		{
 			if (EditorViewModel.IsCombinable) {
 				foreach (var item in combinableList) {
-					if (!string.IsNullOrEmpty (EditorViewModel.ValueName)) {
-						item.State = EditorViewModel.ValueName.Contains (item.Title) ? NSCellStateValue.On : NSCellStateValue.Off;
+					if (EditorViewModel.ValueList.Count () > 0) {
+						item.State = EditorViewModel.ValueList.Contains (item.Title) ? NSCellStateValue.On : NSCellStateValue.Off;
 					}
 					else {
 						item.State = NSCellStateValue.Off;
 					}
 				}
 			} else {
-
 				this.comboBox.StringValue = EditorViewModel.ValueName ?? String.Empty;
 			}
 		}

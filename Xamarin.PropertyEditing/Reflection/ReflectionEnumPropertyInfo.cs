@@ -47,6 +47,7 @@ namespace Xamarin.PropertyEditing.Reflection
 		public override async Task SetValueAsync<TValue> (object target, TValue value)
 		{
 			IReadOnlyList<T> values = value as IReadOnlyList<T>;
+			object convertedValue;
 			if (values != null) {
 				if (!IsValueCombinable)
 					throw new ArgumentException ("Can not set a combined value on a non-combinable type", nameof(value));
@@ -58,11 +59,11 @@ namespace Xamarin.PropertyEditing.Reflection
 					realValue = or (realValue, values[i]);
 				}
 
-				PropertyInfo.SetValue (target, realValue);
+				convertedValue = Enum.ToObject (PropertyInfo.PropertyType, realValue);
 			} else {
-				object convertedValue = Enum.ToObject (PropertyInfo.PropertyType, value);
-				PropertyInfo.SetValue (target, convertedValue);
+				convertedValue = Enum.ToObject (PropertyInfo.PropertyType, value);
 			}
+			PropertyInfo.SetValue (target, convertedValue);
 		}
 
 		public override async Task<TValue> GetValueAsync<TValue> (object target)
