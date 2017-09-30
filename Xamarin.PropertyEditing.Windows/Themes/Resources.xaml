@@ -5,11 +5,10 @@
                     xmlns:vm="clr-namespace:Xamarin.PropertyEditing.ViewModels;assembly=Xamarin.PropertyEditing"
                     xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero">
 
-	<ResourceDictionary.MergedDictionaries>
-		<ResourceDictionary Source="VS.Light.xaml" />
-		<ResourceDictionary Source="MenuButtonStyle.xaml" />
-		<ResourceDictionary Source="PropertyEditorPanelStyle.xaml" />
-	</ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="MenuButtonStyle.xaml" />
+        <ResourceDictionary Source="PropertyEditorPanelStyle.xaml" />
+    </ResourceDictionary.MergedDictionaries>
 
 	<BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 
