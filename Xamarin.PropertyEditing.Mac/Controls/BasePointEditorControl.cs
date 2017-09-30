@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using AppKit;
@@ -45,6 +45,8 @@ namespace Xamarin.PropertyEditing.Mac
 			AddSubview (XEditor);
 			AddSubview (YLabel);
 			AddSubview (YEditor);
+
+			UpdateTheme ();
 		}
 
 		protected override void HandleErrorsChanged (object sender, System.ComponentModel.DataErrorsChangedEventArgs e)

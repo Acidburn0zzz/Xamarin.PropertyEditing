@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using System.ComponentModel;
@@ -23,8 +23,9 @@ namespace Xamarin.PropertyEditing.Mac
 				BackgroundColor = NSColor.Clear,
 				StringValue = String.Empty,
 				Cell = {
-					ControlSize = NSControlSize.Regular	
-				}
+					ControlSize = NSControlSize.Regular
+				},
+				Editable = false,
 			};
 
 			this.comboBox.SelectionChanged += (sender, e) => {
@@ -37,6 +38,8 @@ namespace Xamarin.PropertyEditing.Mac
 				comboBox.ConstraintTo (this, (cb, c) => cb.Width == c.Width),
 				comboBox.ConstraintTo (this, (cb, c) => cb.Left == c.Left),
 			});
+
+			UpdateTheme ();
 		}
 
 		public override NSView FirstKeyView => this.comboBox;

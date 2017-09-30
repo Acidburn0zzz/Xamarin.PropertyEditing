@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using AppKit;
@@ -26,6 +26,8 @@ namespace Xamarin.PropertyEditing.Mac
             this.DoConstraints (new[] {
 				StringEditor.ConstraintTo (this, (s, c) => s.Width == c.Width),
 			});
+
+			UpdateTheme ();
 		}
 
 		internal NSTextField StringEditor { get; set; }

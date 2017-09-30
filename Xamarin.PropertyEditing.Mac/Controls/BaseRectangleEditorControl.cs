@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Drawing;
@@ -66,6 +66,8 @@ namespace Xamarin.PropertyEditing.Mac
 			AddSubview (WidthEditor);
 			AddSubview (HeightLabel);
 			AddSubview (HeightEditor);
+
+			UpdateTheme ();
 		}
 
 		protected virtual void OnInputUpdated (object sender, EventArgs e)

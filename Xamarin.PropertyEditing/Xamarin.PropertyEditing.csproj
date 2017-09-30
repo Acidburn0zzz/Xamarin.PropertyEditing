@@ -112,12 +112,17 @@
     <Compile Include="ObservableLookup.cs" />
     <Compile Include="IMutableLookup.cs" />
     <Compile Include="OrderedDictionary.cs" />
+    <Compile Include="Themes\BaseThemeManager.cs" />
+    <Compile Include="Themes\ThemeStyle.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Themes\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

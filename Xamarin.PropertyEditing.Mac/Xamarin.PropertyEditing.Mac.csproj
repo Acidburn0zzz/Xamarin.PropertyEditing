@@ -75,9 +75,11 @@
     <Compile Include="Controls\PointEditorControl.cs" />
     <Compile Include="Controls\RectangleEditorControl.cs" />
     <Compile Include="Controls\SizeEditorControl.cs" />
+    <Compile Include="Themes\MacThemeManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controls\" />
+    <Folder Include="Themes\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.PropertyEditing\Xamarin.PropertyEditing.csproj">
