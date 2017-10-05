@@ -40,7 +40,7 @@ namespace Xamarin.PropertyEditing.Mac
 			AddSubview (NumericEditor);
 
 			this.DoConstraints ( new[] {
-				NumericEditor.ConstraintTo (this, (n, c) => n.Width == c.Width - 17),
+				NumericEditor.ConstraintTo (this, (n, c) => n.Width == c.Width - 45),
 				Stepper.ConstraintTo (NumericEditor, (s, n) => s.Left == n.Right + 5),
 				Stepper.ConstraintTo (NumericEditor, (s, n) => s.Top == n.Top + 1),
 			});
@@ -65,14 +65,9 @@ namespace Xamarin.PropertyEditing.Mac
 		protected override void UpdateErrorsDisplayed (IEnumerable errors)
 		{
 			if (ViewModel.HasErrors) {
-				NumericEditor.BackgroundColor = NSColor.Red;
-				Debug.WriteLine ("Your input triggered an error:");
-				foreach (var error in errors) {
-					Debug.WriteLine (error.ToString () + "\n");
-				}
-			}
-			else {
-				NumericEditor.BackgroundColor = NSColor.Clear;
+				SetErrors (errors);
+			} else {
+				SetErrors (null);
 				SetEnabled ();
 			}
 		}

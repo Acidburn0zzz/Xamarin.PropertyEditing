@@ -76,6 +76,8 @@
     <Compile Include="Controls\RectangleEditorControl.cs" />
     <Compile Include="Controls\SizeEditorControl.cs" />
     <Compile Include="Themes\MacThemeManager.cs" />
+    <Compile Include="Controls\BaseEditorControl.cs" />
+    <Compile Include="Controls\ErrorMessageView.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controls\" />
